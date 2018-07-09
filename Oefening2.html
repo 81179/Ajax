@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Front22 Oefening 2</title>
+    <script src="js/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "ajax2.php"
+            })
+                .done(function (data) {
+                    $('#hierinfo').html(data);
+                })
+                .fail(function () {
+                    $("#hierinfo").text("ajax request mislukt!");
+                })
+                .always(function () {
+                    alert("ajax request klaar");
+                });
+        });
+    </script>
+</head>
+<body>
+    <div id="hierinfo">
+
+    </div>
+</body>
+</html>

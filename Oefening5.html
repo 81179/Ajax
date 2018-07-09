@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Front22 Oefening 5</title>
+    <script src="js/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#knop").click(function () {
+                var invoer = $("#invoer").val();
+
+                $.ajax({
+                    url: "ajax5.php",
+                    method: "POST",
+                    data: {
+                        'invoer': invoer
+                    }
+                })
+                    .done(function (data) {
+                        $("#resultaat").html(data);
+                    });
+            });
+        });
+    </script>
+</head>
+<body>
+    <input type="text" id="invoer"><br/>
+    <button id="knop">Voeg Toe</button><br/>
+    <div id="resultaat">
+</div>
+</body>
+</html>

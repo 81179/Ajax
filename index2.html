@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Overzicht</title>
+    <!--Stylesheets-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <link rel="stylesheet" href="Css/Stylesheet.scss">
+    <!--Jquery-->
+    <script src="js/jquery-3.2.1.js"></script>
+    <!--Bootstrap-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <!--Popper-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+    <script>
+        function toonAlles(){
+            $.getJSON("LedenZien.php")
+                .done(function (data) {
+                    var output = "<table class='table table-bordered table-striped'>";
+                    output += "<thead>"
+                    output += "<tr>";
+                    output += "<th>Firstname</th> <th>Lastname</th> <th>Gender</th> <th>Birth Date</th> <th>Member since</th>";
+                    output += "</tr>";
+                    output += "</trhead>";
+                    output += "<tbody>";
+
+                    for(var i in data){
+                        output += "<tr>";
+                        output += "<td>" + data[i].first_name + "</td>";
+                        output += "<td>" + data[i].last_name + "</td>";
+                        output += "<td>" + data[i].gender + "</td>";
+                        output += "<td>" + data[i].birth_date + "</td>";
+                        output += "<td>" + data[i].member_since + "</td>";
+                        output += "</tr>"
+                    }
+
+                    output += "</tbody>";
+                    output += "</table>";
+
+                    $("#leden").html(output);
+                });
+        };
+        $(document).ready(toonAlles());
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#toevoegKnop").click(function () {
+                var invoer = $("#invoer").val();
+
+                $.ajax({
+                    url: "LedenToevoegen.php",
+                    method: "POST",
+                    data: {
+                        'invoer': invoer
+                    }
+                })
+                    .done(function (data) {
+                        $("#resultaat").html(data);
+                        toonAlles();
+                    });
+            });
+        });
+    </script>
+</head>
+<body>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal1">
+        Leden Toevoegen
+    </button>
+    <div class="container">
+        <div id="leden">
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="modal1-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal1-label">Mijn titel</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Toevoegen van een lid <br/>
+
+                    <input type="text" id="invoer">
+                    <div id="resultaat">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                    <button type="button" id="toevoegKnop" class="btn btn-primary">Opslaan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

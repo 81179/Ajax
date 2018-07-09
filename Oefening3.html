@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Front22 Oefening3</title>
+    <script src="js/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.getJSON("ajax3.php")
+                .done(function (data) {
+                    var output = "<p>";
+
+                    for (var i in data){
+                        output += data[i] + " heeft nummer " + i + "<br/>";
+                    }
+
+                    output += "</p>";
+
+                    $("#hierinfo").html(output);
+                });
+
+        });
+    </script>
+</head>
+<body>
+    <div id="hierinfo">
+
+    </div>
+
+</body>
+</html>

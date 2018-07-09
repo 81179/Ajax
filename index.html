@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Overzicht</title>
+    <!--Stylesheets-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <link rel="stylesheet" href="Css/Stylesheet.css">
+    <link href="https://fonts.googleapis.com/css?family=Bungee|Roboto" rel="stylesheet">
+    <!--Jquery-->
+    <script src="js/jquery-3.2.1.js"></script>
+    <!--Bootstrap-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <!--Popper-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+    <script>
+        function toonAlles(){
+            $.getJSON("ledenZien.php")
+                .done(function (data) {
+                    if (data[0]) {
+                        var output = '<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal1">Leden Toevoegen </button>';
+                        output += '<button id="loguit" type="button" class="btn btn-primary float-right">Uitloggen</button>';
+                        output += '<br/>';
+                        output += '<br/>';
+                        output += "<table class='table table-bordered table-striped' id='LedenTabel'>";
+                        output += "<thead>";
+                        output += "<tr>";
+                        output += "<th>Firstname</th> <th>Lastname</th> <th>Gender</th> <th>Birth Date</th> <th>Member since</th> <th>Bewerken</th> <th>Verwijder</th>";
+                        output += "</tr>";
+                        output += "</trhead>";
+                        output += "<tbody>";
+
+                        for (var i in data) {
+                            output += "<tr>";
+                            output += "<td><p>" + data[i].first_name + "</p></td>";
+                            output += "<td><p>" + data[i].last_name + "</p></td>";
+                            output += "<td><p>" + data[i].gender + "</p></td>";
+                            output += "<td><p>" + data[i].birth_date + "</p></td>";
+                            output += "<td><p>" + data[i].member_since + "</p></td>";
+                            output += '<td> <button class="bewerkKnop btn btn-warning" data-id ="' + data[i].id + '" type="button" data-toggle="modal" data-target="#modalBewerk">Bewerken</button> </td>';
+                            output += '<td> <button class="verwijderKnop btn btn-danger" data-id ="' + data[i].id + '" type="button" data-toggle="modal" data-target="#modalVerwijder">Verwijder</button> </td>';
+                            output += "</tr>"
+                        }
+
+                        output += "</tbody>";
+                        output += "</table>";
+
+                        $("#leden").html(output);
+                    }
+                    else {
+                        var inlog = "<form id='loginForm' class='text-center'>";
+                        inlog += "<p>Gebruikersnaam:</p>";
+                        inlog += "<input id='gebruikersnaam' type='text'>";
+                        inlog += "<p>Wachtwoord:</p>";
+                        inlog += "<input id='wachtwoord' type='password' >";
+                        inlog += "<br/>";
+                        inlog += '<button type="button" id="inlogKnop" class="btn btn-primary">Inloggen</button>';
+
+                        $("#leden").html(inlog);
+
+                        $("#inlogKnop").click(function () {
+                            var gebruikersnaam = $("#gebruikersnaam").val();
+                            var wachtwoord = $("#wachtwoord").val();
+
+                            $.ajax({
+                                url: "inlog.php",
+                                method: "POST",
+                                data: {
+                                    'gebruikersnaam': gebruikersnaam,
+                                    'wachtwoord' : wachtwoord
+                                }
+                            })
+                                .done(function () {
+                                toonAlles();
+                            });
+                        });
+                    }
+                    $("#loguit").click(function () {
+                        $.ajax({
+                            url: "logout.php"
+                        })
+                            .done(function () {
+                                toonAlles();
+                            });
+                    });
+                });
+        }
+        $(document).ready(toonAlles());
+
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#toevoegKnop").click(function () {
+                var voornaam = $("#voornaam").val();
+                var achternaam = $("#achternaam").val();
+                var geslacht = $("#geslacht").val();
+                var geboortedatum = $("#geboortedatum").val();
+
+                $.ajax({
+                    url: "ledenToevoegen.php",
+                    method: "POST",
+                    data: {
+                        'voornaam': voornaam,
+                        'achternaam' : achternaam,
+                        'geslacht' : geslacht,
+                        'geboortedatum' : geboortedatum
+
+                    }
+                })
+                    .done(function (data) {
+                        $("#resultaat").html(data);
+                        toonAlles();
+                    });
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(document).on('click','.bewerkKnop',function () {
+                var id = $(this).data('id');
+
+                $.ajax({
+                    url: "ledenLaden.php",
+                    method: "POST",
+                    data: {
+                        'id': id
+                    }
+                })
+                    .done(function (data) {
+                        var JsonData = JSON.parse(data);
+
+                        $("#bewerkVoornaam").attr("value",JsonData["0"].first_name);
+                        $("#bewerkAchternaam").attr("value",JsonData["0"].last_name);
+                        if (JsonData["0"].gender === "M"){
+                            $("#man").attr('selected','selected');
+                        }
+                        else{
+                            $("#vrouw").attr('selected','selected');
+                        }
+                        $("#bewerkGeboortedatum").attr("value",JsonData["0"].birth_date);
+                        $("#bewerkResultaat").html(JsonData);
+                        $("#bewerkId").attr('value',id);
+                    });
+            });
+            $("#bewerkOpslaan").click(function () {
+                var id = $("#bewerkId").val();
+                var voornaam = $("#bewerkVoornaam").val();
+                var achternaam = $("#bewerkAchternaam").val();
+                var geslacht = $("#bewerkGeslacht").val();
+                var geboortedatum = $("#bewerkGeboortedatum").val();
+
+                $.ajax({
+                    url: "ledenBewerken.php",
+                    method: "POST",
+                    data: {
+                        'voornaam': voornaam,
+                        'achternaam' : achternaam,
+                        'geslacht' : geslacht,
+                        'geboortedatum' : geboortedatum,
+                        'id': id
+                    }
+                })
+                    .done(function (data) {
+                        $("#bewerkResultaat").html(data);
+                        toonAlles();
+                    });
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(document).on('click', '.verwijderKnop', function () {
+                var id = $(this).data('id');
+
+                $.ajax({
+                    url: "ledenLaden.php",
+                    method: "POST",
+                    data: {
+                        'id': id
+                    }
+                })
+                    .done(function (data) {
+                        var JsonData = JSON.parse(data);
+
+                        var output = "<table class='table table-bordered table-striped'>";
+                        output += "<thead>";
+                        output += "<tr>";
+                        output += "<th>Firstname</th> <th>Lastname</th> <th>Gender</th> <th>Birth Date</th> <th>Member since</th>";
+                        output += "</tr>";
+                        output += "</trhead>";
+                        output += "<tbody>";
+
+
+                        output += "<tr>";
+                        output += "<td>" + JsonData["0"].first_name + "</td>";
+                        output += "<td>" + JsonData["0"].last_name + "</td>";
+                        output += "<td>" + JsonData["0"].gender + "</td>";
+                        output += "<td>" + JsonData["0"].birth_date + "</td>";
+                        output += "<td>" + JsonData["0"].member_since + "</td>";
+                        output += "</tr>";
+
+                        $("#verwijderId").attr('value',id);
+                        $("#lidGegevens").html(output);
+                    });
+            });
+            $("#verwijderOpslaan").click(function () {
+                var id = $("#verwijderId").val();
+
+                $.ajax({
+                    url: "ledenVerwijderen.php",
+                    method: "POST",
+                    data: {
+                        'id': id
+                    }
+                })
+                    .done(function (data) {
+                        $("#bewerkResultaat").html(data);
+                        toonAlles();
+                    });
+            });
+        });
+
+    </script>
+</head>
+<body>
+<div class="container">
+    <div id="leden">
+
+    </div>
+</div>
+
+<div class="modal fade" id="modal1" tabindex="-1" role="dialog" aria-labelledby="modal1-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal1-label">Lid aanpassen</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Toevoegen van een lid <br/>
+                Voornaam: <br/>
+                <input type="text" id="voornaam"><br/>
+                Achternaam: <br/>
+                <input type="text" id="achternaam"><br/>
+                Geslacht: <br/>
+                <select id="geslacht">
+                    <option value="M">M</option>
+                    <option value="F">F</option>
+                </select><br/>
+                Geboortedatum: <br/>
+                <input id="geboortedatum" type="date"><br/>
+
+                <div id="resultaat">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                    <button type="button" id="toevoegKnop" class="btn btn-primary">Opslaan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalBewerk" tabindex="-1" role="dialog" aria-labelledby="modal1-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalBewerk-label">Leden bewerken</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                bewerken van een lid <br/>
+                Voornaam: <br/>
+                <input type="text" id="bewerkVoornaam"><br/>
+                Achternaam: <br/>
+                <input type="text" id="bewerkAchternaam"><br/>
+                Geslacht: <br/>
+                <select id="bewerkGeslacht">
+                    <option value="M" id="man">M</option>
+                    <option value="F" id="vrouw">F</option>
+                </select><br/>
+                Geboortedatum: <br/>
+                <input id="bewerkGeboortedatum" type="date"><br/>
+                <input id="bewerkToevoegdatum" type="datetime-local" hidden>
+                <input id="bewerkId" type="hidden">
+
+                <div id="bewerkResultaat">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                    <button type="button" id="bewerkOpslaan" class="btn btn-primary">Opslaan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalVerwijder" tabindex="-1" role="dialog" aria-labelledby="modal1-label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalVerwijder-label">Lid verwijderen</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Weet je zeker dat je het volgende lid wil verwijderen?
+                <div id="lidGegevens">
+
+                </div>
+                <input id="verwijderId" type="hidden" value="">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+                <button type="button" id="verwijderOpslaan" class="btn btn-primary" data-dismiss="modal">Verwijder</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

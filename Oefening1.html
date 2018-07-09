@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Front22 Oefening 1</title>
+    <script src="js/jquery-3.2.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: "ajax1.php"
+            })
+                .done(function (data) {
+                    $('#hierinfo').html(data);
+                });
+        });
+    </script>
+</head>
+<body>
+    <div id="hierinfo">
+
+    </div>
+</body>
+</html>
